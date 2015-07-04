@@ -3,15 +3,25 @@ var Router = require('react-router');
 var Repos = require('./Github/Repos');
 var UserProfile = require('./Github/UserProfile');
 var Notes = require('./Notes/Notes');
+var ReactFireMixin = require('reactfire');
+var Firebase = require('firebase');
 
 var Profile = React.createClass({
-    mixins: [Router.State],
+    mixins: [Router.State, ReactFireMixin],
     getInitialState: function(){
         return{
-            notes:['note1', 'note2', 'note3'],
+            notes:[],
             bio: {name: 'John Johnson'},
             repos:['repo1', 'repo2', 'repo3']
         }
+    },
+    componentDidMount: function(){
+      this.ref = new Firebase('https://eggreact.firebaseio.com');
+        var childRef = this.ref.child(this.getParams().username);
+        this.bindAsArray(childRef, 'notes');
+    },
+    componentWillUnmount: function(){
+        this.unbind('notes');
     },
     render: function(){
         var username = this.getParams().username;
